@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Colegio De Montalban Quiz Game</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #bbdefb, #e3f2fd);
+      color: #0d47a1;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    header img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 4px solid #0d47a1;
+      margin-top: 20px;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 5px;
+    }
+
+    marquee {
+      background-color: #1565c0;
+      padding: 8px;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      animation: colorChange 3s infinite;
+      margin-bottom: 20px;
+    }
+
+    @keyframes colorChange {
+      0% { color: #fff; }
+      25% { color: #ffeb3b; }
+      50% { color: #00e676; }
+      75% { color: #ff4081; }
+      100% { color: #fff; }
+    }
+
+    .quiz-box {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      width: 80%;
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .question {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+
+    .options button {
+      display: block;
+      width: 100%;
+      background: #64b5f6;
+      border: none;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 10px;
+      font-size: 16px;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .options button:hover {
+      background: #0d47a1;
+    }
+
+    #next-btn, #start-btn, #restart-btn {
+      background: #1565c0;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+
+    #next-btn:hover, #start-btn:hover, #restart-btn:hover {
+      background: #0d47a1;
+    }
+
+    .stats {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #0d47a1;
+    }
+
+    footer {
+      margin-top: 30px;
+      font-size: 14px;
+      color: #0d47a1;
+    }
+
+    /* 🎉 Confetti canvas covers entire screen */
+    canvas#confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ✅ Floating correct popup */
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(13, 71, 161, 0.95);
+      color: white;
+      padding: 30px 40px;
+      border-radius: 15px;
+      font-size: 24px;
+      font-weight: bold;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      animation: fadeUp 1.5s ease forwards;
+      z-index: 999;
+    }
+
+    @keyframes fadeUp {
+      0% { opacity: 0; transform: translate(-50%, -60%) scale(0.9); }
+      20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      80% { opacity: 1; }
+      100% { opacity: 0; transform: translate(-50%, -40%) scale(1.1); }
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="confetti-canvas"></canvas>
+
+  <audio id="cheer-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_09c3b04024.mp3?filename=small-crowd-cheer-6697.mp3"></audio>
+
+  <header>
+    <img src="c:\Users\DESKTOP\Pictures\c.png" alt="Colegio De Montalban Logo">
+    <h1>Colegio De Montalban Quiz Game</h1>
+  </header>
+
+  <marquee> Welcome to Colegio De Montalban Quiz Game! Simple Memory Game | Developed by Justin Edward Sebarre, Paulo Sonio, J-el Gregorio</marquee>
+
+  <div class="quiz-box">
+    <div id="intro">
+      <h2>Are you ready?</h2>
+      <p>Two rounds: <b>School</b> and <b>HTML</b>. Each question has 10 seconds!</p>
+      <button id="start-btn" onclick="startQuiz()">Start Quiz</button>
+    </div>
+
+    <div id="quiz" style="display:none;">
+      <h3 id="round-title"></h3>
+      <div class="question" id="question">Loading question...</div>
+      <div class="options" id="options"></div>
+
+      <div class="stats">
+        ⏳ Time left: <span id="timer">10</span>s |  Score: <span id="score">0</span>
+      </div>
+    </div>
+
+    <div id="result" style="display:none;">
+      <h2>🎉 Quiz Completed!</h2>
+      <p id="final-score"></p>
+      <button id="restart-btn" onclick="restartQuiz()">Play Again</button>
+    </div>
+  </div>
+
+  <footer>© 2025 Colegio De Montalban | Simple Memory Game</footer>
+
+  <script>
+    const rounds = [
+      {
+        name: "Round 1: Colegio De Montalban",
+        questions: [
+          { question: "What is the main goal of the Colegio de Montalban mission statement below?", options: ["To train students to excel in sports", "To prepare students to be responsible, God-fearing, and professional individuals who help improve the community", "To teach students different languages", "To encourage students to start businesses"], answer: "To prepare students to be responsible, God-fearing, and professional individuals who help improve the community" },
+          { question: "Where is Colegio De Montalban located?", options: ["Antipolo", "Rodriguez, Rizal", "Marikina", "Quezon City"], answer: "Rodriguez, Rizal" },
+          { question: "What does the torch in the CDM logo represent?", options: ["Unity", "Wisdom and Knowledge", "Victory", "Faith"], answer: "Wisdom and Knowledge" },
+          { question: "Who is the current mayor of Rodriguez, Rizal?", options: ["Ronnie Evangelista", "Rodrigo Duterte", "Allan Dela Cruz", "Ronaldo Lapitan"], answer: "Ronnie Evangelista" },
+          { question: "What is CDM’s motto?", options: ["Education for All", "Excellence Through Education", "We Lead, We Serve", "Knowledge is Power"], answer: "Excellence Through Education" },
+        ]
+      },
+      {
+        name: "Round 2: HTML Basics",
+        questions: [
+          { question: "What does HTML stand for?", options: ["Hyper Text Markup Language", "High Tech Machine Language", "Home Tool Markup Language", "Hyperlinks and Text Mark Language"], answer: "Hyper Text Markup Language" },
+          { question: "Which tag is used for the largest heading?", options: ["<heading>", "<h6>", "<h1>", "<head>"], answer: "<h1>" },
+          { question: "What tag is used to insert a line break?", options: ["<lb>", "<break>", "<br>", "<line>"], answer: "<br>" },
+          { question: "Which HTML element is used to display an image?", options: ["<pic>", "<src>", "<image>", "<img>"], answer: "<img>" },
+          { question: "What tag is used for a paragraph?", options: ["<p>", "<text>", "<para>", "<body>"], answer: "<p>" }
+        ]
+      }
+    ];
+
+    let roundIndex = 0, currentQuestion = 0, score = 0, timeLeft = 10, timerInterval;
+
+    function startQuiz() {
+      document.getElementById("intro").style.display = "none";
+      document.getElementById("quiz").style.display = "block";
+      loadRound();
+    }
+
+    function loadRound() {
+      document.getElementById("round-title").textContent = rounds[roundIndex].name;
+      currentQuestion = 0;
+      showQuestion();
+    }
+
+    function showQuestion() {
+      clearInterval(timerInterval);
+      timeLeft = 10;
+      document.getElementById("timer").textContent = timeLeft;
+      const q = rounds[roundIndex].questions[currentQuestion];
+      document.getElementById('question').textContent = q.question;
+      const optionsDiv = document.getElementById('options');
+      optionsDiv.innerHTML = "";
+      q.options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.textContent = opt;
+        btn.onclick = () => selectAnswer(opt);
+        optionsDiv.appendChild(btn);
+      });
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          autoNext(false);
+        }
+      }, 1000);
+    }
+
+    function showPopup(message, color) {
+      const popup = document.createElement("div");
+      popup.className = "popup";
+      popup.style.background = color;
+      popup.textContent = message;
+      document.body.appendChild(popup);
+      setTimeout(() => popup.remove(), 1500);
+    }
+
+    function selectAnswer(selected) {
+      const q = rounds[roundIndex].questions[currentQuestion];
+      clearInterval(timerInterval);
+      if (selected === q.answer) {
+        score += 10;
+        showPopup("✅ Correct!", "rgba(0, 150, 0, 0.9)");
+      } else {
+        showPopup("❌ Wrong!", "rgba(200, 0, 0, 0.9)");
+      }
+      document.getElementById("score").textContent = score;
+      setTimeout(() => autoNext(true), 1000);
+    }
+
+    function autoNext() {
+      currentQuestion++;
+      if (currentQuestion < rounds[roundIndex].questions.length) {
+        showQuestion();
+      } else {
+        if (roundIndex < rounds.length - 1) {
+          showPopup("🎯 Round 1 Complete!", "rgba(13,71,161,0.9)");
+          roundIndex++;
+          setTimeout(loadRound, 1200);
+        } else endQuiz();
+      }
+    }
+
+    function endQuiz() {
+      document.getElementById("quiz").style.display = "none";
+      document.getElementById("result").style.display = "block";
+      document.getElementById("final-score").innerHTML = `You scored <b>${score}</b> points! Great job!`;
+      const cheer = document.getElementById("cheer-sound");
+      cheer.currentTime = 0; cheer.play();
+      launchConfetti();
+
+      const total = rounds.reduce((s, r) => s + r.questions.length, 0);
+      if (score === total * 10) {
+        setTimeout(() => {
+          showPopup("🏆 Perfect Score!", "rgba(255,193,7,0.9)");
+          cheer.play();
+          launchConfetti();
+        }, 800);
+      }
+    }
+
+    function restartQuiz() {
+      roundIndex = 0; currentQuestion = 0; score = 0;
+      document.getElementById("score").textContent = score;
+      document.getElementById("result").style.display = "none";
+      document.getElementById("quiz").style.display = "block";
+      loadRound();
+    }
+
+    // 🎉 Confetti Animation
+    const canvas = document.getElementById("confetti-canvas");
+    const ctx = canvas.getContext("2d");
+    let confetti = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    function launchConfetti() {
+      confetti = Array.from({ length: 150 }).map(() => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height - canvas.height,
+        r: Math.random() * 6 + 4,
+        d: Math.random() * 0.5 + 0.5,
+        color: `hsl(${Math.random() * 360}, 100%, 60%)`,
+        tilt: Math.random() * 10 - 10,
+        tiltAngleIncrement: Math.random() * 0.07 + 0.05,
+        tiltAngle: 0,
+      }));
+      animateConfetti();
+      setTimeout(() => confetti = [], 5000);
+    }
+
+    function animateConfetti() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      confetti.forEach(c => {
+        c.tiltAngle += c.tiltAngleIncrement;
+        c.y += c.d;
+        c.x += Math.sin(c.tiltAngle) * 2;
+        c.tilt = Math.sin(c.tiltAngle) * 15;
+        ctx.beginPath();
+        ctx.lineWidth = c.r;
+        ctx.strokeStyle = c.color;
+        ctx.moveTo(c.x + c.tilt + c.r / 2, c.y);
+        ctx.lineTo(c.x + c.tilt, c.y + c.tilt + c.r / 2);
+        ctx.stroke();
+      });
+      if (confetti.length > 0) requestAnimationFrame(animateConfetti);
+    }
+  </script>
+</body>
+</html>
