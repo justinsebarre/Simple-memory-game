@@ -4,11 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Colegio De Montalban Quiz Game</title>
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
   <style>
+    /* ===================== Gaming Green Theme ===================== */
     body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #bbdefb, #e3f2fd);
-      color: #0d47a1;
+      font-family: 'Orbitron', sans-serif;
+      background-color: #0d0d0d;
+      color: #00ff66;
       text-align: center;
       margin: 0;
       padding: 0;
@@ -19,97 +21,107 @@
       width: 120px;
       height: 120px;
       border-radius: 50%;
-      border: 4px solid #0d47a1;
+      border: 4px solid #00ff66;
       margin-top: 20px;
+      box-shadow: 0 0 20px #00ff66;
     }
 
     h1 {
-      font-size: 28px;
-      margin-bottom: 5px;
+      font-size: 32px;
+      margin: 10px 0;
+      color: #00ff66;
+      text-shadow: 0 0 8px #00ff66, 0 0 15px #00ff66;
     }
 
     marquee {
-      background-color: #1565c0;
+      background-color: #111;
       padding: 8px;
-      color: white;
+      color: #00ff66;
       font-size: 18px;
       font-weight: bold;
-      animation: colorChange 3s infinite;
+      text-shadow: 0 0 5px #00ff66;
       margin-bottom: 20px;
-    }
-
-    @keyframes colorChange {
-      0% { color: #fff; }
-      25% { color: #ffeb3b; }
-      50% { color: #00e676; }
-      75% { color: #ff4081; }
-      100% { color: #fff; }
+      border-top: 2px solid #00ff66;
+      border-bottom: 2px solid #00ff66;
     }
 
     .quiz-box {
-      background: white;
+      background-color: #111;
       border-radius: 15px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-      width: 80%;
+      box-shadow: 0 0 15px #00ff66, 0 0 30px #00ff66 inset;
+      width: 85%;
       max-width: 600px;
       margin: auto;
-      padding: 20px;
+      padding: 25px;
       position: relative;
-      z-index: 2;
     }
 
     .question {
-      font-size: 20px;
+      font-size: 22px;
+      font-weight: bold;
+      color: #00ff66;
       margin-bottom: 20px;
+      text-shadow: 0 0 6px #00ff66;
     }
 
     .options button {
       display: block;
       width: 100%;
-      background: #64b5f6;
-      border: none;
-      padding: 10px;
+      background: #000;
+      border: 2px solid #00ff66;
+      padding: 12px;
       margin: 8px 0;
       border-radius: 10px;
       font-size: 16px;
-      color: white;
+      color: #00ff66;
       cursor: pointer;
-      transition: 0.3s;
+      text-transform: uppercase;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 8px #00ff66;
     }
 
     .options button:hover {
-      background: #0d47a1;
+      background: yellow; /* Correct answer highlight */
+      color: #000;
+      box-shadow: 0 0 15px yellow, 0 0 30px yellow inset;
+      transform: scale(1.05);
     }
 
     #next-btn, #start-btn, #restart-btn {
-      background: #1565c0;
-      color: white;
-      border: none;
+      background: #000;
+      color: #00ff66;
+      border: 2px solid #00ff66;
       padding: 10px 20px;
-      border-radius: 5px;
+      border-radius: 8px;
       cursor: pointer;
       font-size: 16px;
-      margin-top: 10px;
+      margin-top: 15px;
+      box-shadow: 0 0 10px #00ff66;
+      transition: all 0.3s ease;
     }
 
     #next-btn:hover, #start-btn:hover, #restart-btn:hover {
-      background: #0d47a1;
+      background: #00ff66;
+      color: #000;
+      box-shadow: 0 0 20px #00ff66, 0 0 35px #00ff66 inset;
+      transform: scale(1.1);
     }
 
     .stats {
       margin-top: 20px;
       font-size: 18px;
       font-weight: bold;
-      color: #0d47a1;
+      color: #00ff66;
+      text-shadow: 0 0 6px #00ff66;
     }
 
     footer {
       margin-top: 30px;
       font-size: 14px;
-      color: #0d47a1;
+      color: #00ff66;
+      text-shadow: 0 0 6px #00ff66;
     }
 
-    /* 🎉 Confetti canvas covers entire screen */
     canvas#confetti-canvas {
       position: fixed;
       top: 0;
@@ -120,21 +132,21 @@
       z-index: 1;
     }
 
-    /* ✅ Floating correct popup */
     .popup {
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: rgba(13, 71, 161, 0.95);
-      color: white;
-      padding: 30px 40px;
+      background: rgba(0, 0, 0, 0.95);
+      color: #00ff66;
+      padding: 25px 35px;
       border-radius: 15px;
       font-size: 24px;
       font-weight: bold;
-      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      box-shadow: 0 0 20px #00ff66, 0 0 40px #00ff66 inset;
       animation: fadeUp 1.5s ease forwards;
       z-index: 999;
+      text-transform: uppercase;
     }
 
     @keyframes fadeUp {
@@ -143,26 +155,46 @@
       80% { opacity: 1; }
       100% { opacity: 0; transform: translate(-50%, -40%) scale(1.1); }
     }
+
+    /* ===================== Student Name Validation ===================== */
+    input.valid {
+      border: 2px solid #00ff66;
+      background-color: #111;
+      color: #00ff66;
+    }
+
+    input.invalid {
+      border: 2px solid red;
+      background-color: #111;
+      color: red;
+    }
+
+    #errorMsg {
+      color: red;
+      font-size: 14px;
+      margin-top: 5px;
+    }
   </style>
 </head>
 <body>
-
   <canvas id="confetti-canvas"></canvas>
-
   <audio id="cheer-sound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_09c3b04024.mp3?filename=small-crowd-cheer-6697.mp3"></audio>
 
   <header>
-    <img src="c.png" alt="Colegio De Montalban Logo">
+    <img src="c:\Users\DESKTOP\Pictures\c.png" alt="Colegio De Montalban Logo">
     <h1>Colegio De Montalban Quiz Game</h1>
   </header>
 
-  <marquee> Welcome to Colegio De Montalban Quiz Game! Simple Memory Game | Developed by Justin Edward Sebarre, Paulo Sonio, J-el Gregorio</marquee>
+  <marquee> Welcome to Colegio De Montalban Quiz Game! | Developed by Justin Edward Sebarre, Paulo Sonio, J-el Gregorio</marquee>
 
   <div class="quiz-box">
     <div id="intro">
-      <h2>Are you ready?</h2>
+      <h2>Enter your details to start:</h2>
+      <input type="text" id="studentName" placeholder="Student Name (No numbers)">
+      <div id="errorMsg"></div>
+      <input type="text" id="studentSection" placeholder="Section">
       <p>Two rounds: <b>School</b> and <b>HTML</b>. Each question has 10 seconds!</p>
-      <button id="start-btn" onclick="startQuiz()">Start Quiz</button>
+      <button id="start-btn" onclick="startQuiz()" disabled>Start Quiz</button>
     </div>
 
     <div id="quiz" style="display:none;">
@@ -171,7 +203,7 @@
       <div class="options" id="options"></div>
 
       <div class="stats">
-        ⏳ Time left: <span id="timer">10</span>s |  Score: <span id="score">0</span>
+        ⏳ Time left: <span id="timer">10</span>s | Score: <span id="score">0</span>
       </div>
     </div>
 
@@ -182,9 +214,30 @@
     </div>
   </div>
 
-  <footer>© 2025 Colegio De Montalban | Simple Memory Game</footer>
+  <footer>© 2025 Colegio De Montalban | Quiz Game</footer>
 
   <script>
+    // ===================== Student Name Validation =====================
+    $(document).ready(function() {
+      $('#studentName').on('input', function() {
+        let value = $(this).val();
+        // Remove all numbers
+        value = value.replace(/[0-9]/g, '');
+        $(this).val(value);
+
+        if (value.trim() === '') {
+          $(this).removeClass('valid invalid');
+          $('#errorMsg').text('');
+          $('#start-btn').prop('disabled', true);
+        } else {
+          $(this).addClass('valid').removeClass('invalid');
+          $('#errorMsg').text('');
+          $('#start-btn').prop('disabled', false);
+        }
+      });
+    });
+
+    // ===================== Quiz Logic =====================
     const rounds = [
       {
         name: "Round 1: Colegio De Montalban",
@@ -201,7 +254,7 @@
         questions: [
           { question: "What does HTML stand for?", options: ["Hyper Text Markup Language", "High Tech Machine Language", "Home Tool Markup Language", "Hyperlinks and Text Mark Language"], answer: "Hyper Text Markup Language" },
           { question: "Which tag is used for the largest heading?", options: ["<heading>", "<h6>", "<h1>", "<head>"], answer: "<h1>" },
-          { question: "What tag is used to insert a line break?", options: ["<lb>", "<break>", "<br>", "<line>"], answer: "<br>" },
+          { question: "What tag is used to insert an line break?", options: ["<lb>", "<break>", "<br>", "<line>"], answer: "<br>" },
           { question: "Which HTML element is used to display an image?", options: ["<pic>", "<src>", "<image>", "<img>"], answer: "<img>" },
           { question: "What tag is used for a paragraph?", options: ["<p>", "<text>", "<para>", "<body>"], answer: "<p>" }
         ]
@@ -211,6 +264,10 @@
     let roundIndex = 0, currentQuestion = 0, score = 0, timeLeft = 10, timerInterval;
 
     function startQuiz() {
+      const name = $('#studentName').val().trim();
+      const section = $('#studentSection').val().trim();
+      if (!name || !section) return alert("Please enter valid Name and Section.");
+
       document.getElementById("intro").style.display = "none";
       document.getElementById("quiz").style.display = "block";
       loadRound();
@@ -260,9 +317,9 @@
       clearInterval(timerInterval);
       if (selected === q.answer) {
         score += 10;
-        showPopup("✅ Correct!", "rgba(0, 150, 0, 0.9)");
+        showPopup("✅ Correct!", "yellow");
       } else {
-        showPopup("❌ Wrong!", "rgba(200, 0, 0, 0.9)");
+        showPopup("❌ Wrong!", "rgba(255, 0, 0, 0.9)");
       }
       document.getElementById("score").textContent = score;
       setTimeout(() => autoNext(true), 1000);
@@ -274,7 +331,7 @@
         showQuestion();
       } else {
         if (roundIndex < rounds.length - 1) {
-          showPopup("🎯 Round 1 Complete!", "rgba(13,71,161,0.9)");
+          showPopup("🎯 Round 1 Complete!", "yellow");
           roundIndex++;
           setTimeout(loadRound, 1200);
         } else endQuiz();
@@ -288,15 +345,6 @@
       const cheer = document.getElementById("cheer-sound");
       cheer.currentTime = 0; cheer.play();
       launchConfetti();
-
-      const total = rounds.reduce((s, r) => s + r.questions.length, 0);
-      if (score === total * 10) {
-        setTimeout(() => {
-          showPopup("🏆 Perfect Score!", "rgba(255,193,7,0.9)");
-          cheer.play();
-          launchConfetti();
-        }, 800);
-      }
     }
 
     function restartQuiz() {
@@ -307,7 +355,7 @@
       loadRound();
     }
 
-    // 🎉 Confetti Animation
+    // ===================== Confetti =====================
     const canvas = document.getElementById("confetti-canvas");
     const ctx = canvas.getContext("2d");
     let confetti = [];
@@ -325,7 +373,7 @@
         y: Math.random() * canvas.height - canvas.height,
         r: Math.random() * 6 + 4,
         d: Math.random() * 0.5 + 0.5,
-        color: `hsl(${Math.random() * 360}, 100%, 60%)`,
+        color: `hsl(${Math.random() * 60}, 100%, 50%)`,
         tilt: Math.random() * 10 - 10,
         tiltAngleIncrement: Math.random() * 0.07 + 0.05,
         tiltAngle: 0,
@@ -353,4 +401,3 @@
   </script>
 </body>
 </html>
-
